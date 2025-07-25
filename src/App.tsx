@@ -23,14 +23,20 @@ function App() {
   const normalCount = filteredData.filter(d => d.severity === 'normal').length
 
   useEffect(() => {
-    // Simulate loading groundwater data
+    // Load groundwater data
     const loadData = async () => {
-      setIsLoading(true)
-      await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate API call
-      const data = generateMockGroundwaterData(500)
-      setGroundwaterData(data)
-      setFilteredData(data)
-      setIsLoading(false)
+      try {
+        setIsLoading(true)
+        // Reduced loading time for better UX
+        await new Promise(resolve => setTimeout(resolve, 800))
+        const data = generateMockGroundwaterData(500)
+        setGroundwaterData(data)
+        setFilteredData(data)
+      } catch (error) {
+        console.error('Error loading groundwater data:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
     loadData()
   }, [])

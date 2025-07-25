@@ -119,39 +119,51 @@ export function Globe3D({ data, onPointClick, selectedPoint }: Globe3DProps) {
   
   // Create earth texture (vintage style)
   const earthTexture = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = 1024
-    canvas.height = 512
-    const ctx = canvas.getContext('2d')!
-    
-    // Create vintage earth-like texture
-    const gradient = ctx.createLinearGradient(0, 0, 0, 512)
-    gradient.addColorStop(0, '#4a5568') // Dark blue-gray for poles
-    gradient.addColorStop(0.3, '#2d3748') // Darker
-    gradient.addColorStop(0.5, '#1a202c') // Darkest at equator
-    gradient.addColorStop(0.7, '#2d3748') // Lighter
-    gradient.addColorStop(1, '#4a5568') // Light blue-gray
-    
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, 1024, 512)
-    
-    // Add some continent-like shapes
-    ctx.fillStyle = '#2f855a' // Dark green for land
-    ctx.globalAlpha = 0.6
-    
-    // Simple continent shapes
-    for (let i = 0; i < 20; i++) {
-      const x = Math.random() * 1024
-      const y = Math.random() * 512
-      const width = Math.random() * 200 + 50
-      const height = Math.random() * 100 + 30
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = 1024
+      canvas.height = 512
+      const ctx = canvas.getContext('2d')
       
-      ctx.beginPath()
-      ctx.ellipse(x, y, width, height, Math.random() * Math.PI, 0, Math.PI * 2)
-      ctx.fill()
+      if (!ctx) {
+        console.warn('Could not get 2D context for earth texture')
+        return null
+      }
+      
+      // Create vintage earth-like texture
+      const gradient = ctx.createLinearGradient(0, 0, 0, 512)
+      gradient.addColorStop(0, '#4a5568') // Dark blue-gray for poles
+      gradient.addColorStop(0.3, '#2d3748') // Darker
+      gradient.addColorStop(0.5, '#1a202c') // Darkest at equator
+      gradient.addColorStop(0.7, '#2d3748') // Lighter
+      gradient.addColorStop(1, '#4a5568') // Light blue-gray
+      
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, 1024, 512)
+      
+      // Add some continent-like shapes
+      ctx.fillStyle = '#2f855a' // Dark green for land
+      ctx.globalAlpha = 0.6
+      
+      // Simple continent shapes
+      for (let i = 0; i < 20; i++) {
+        const x = Math.random() * 1024
+        const y = Math.random() * 512
+        const width = Math.random() * 200 + 50
+        const height = Math.random() * 100 + 30
+        
+        ctx.beginPath()
+        ctx.ellipse(x, y, width, height, Math.random() * Math.PI, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      
+      const texture = new THREE.CanvasTexture(canvas)
+      texture.needsUpdate = true
+      return texture
+    } catch (error) {
+      console.error('Error creating earth texture:', error)
+      return null
     }
-    
-    return new THREE.CanvasTexture(canvas)
   }, [])
   
   return (
@@ -160,6 +172,7 @@ export function Globe3D({ data, onPointClick, selectedPoint }: Globe3DProps) {
       <Sphere ref={globeRef} args={[2, 64, 64]}>
         <meshLambertMaterial 
           map={earthTexture}
+          color={earthTexture ? undefined : '#2d3748'}
           transparent
           opacity={0.9}
         />
